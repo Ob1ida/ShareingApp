@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "122896103170",
+    "firebase_url": "https://productsharingproject-7f9da-default-rtdb.firebaseio.com",
+    "project_id": "productsharingproject-7f9da",
+    "storage_bucket": "productsharingproject-7f9da.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:122896103170:android:c261914760a4128d8ff41b",
+        "android_client_info": {
+          "package_name": "com.beyzacebiturk.sharingapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "122896103170-uujkmbnl59igp0oh16i5ttblps79qord.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABipcYE1qzknfjqd6F63ftnWpa_HEA4t0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "122896103170-2gu0v7c7dhpnkouk9nr0hqd76oh03fmp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "122896103170-0s2l121t36i0okamb97a854ko5a80bn6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.beyzacebiturk.sharingapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
