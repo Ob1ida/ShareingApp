@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:obida_app/Screens/sign_up.dart';
 import 'package:obida_app/components/my_button.dart';
 import 'package:obida_app/components/my_textfield.dart';
 import 'package:obida_app/components/square_tile.dart';
@@ -63,7 +64,7 @@ class LoginPage extends StatelessWidget {
                   },
                   controller: usernameController,
                   decoration: const InputDecoration(
-                  hintText: 'Username',
+                  hintText: 'Email',
                   ),
                   obscureText: false,
                 ),
@@ -85,7 +86,10 @@ class LoginPage extends StatelessWidget {
                     password = value!;
                   },
                   controller: passwordController,
-                  
+                  decoration: const InputDecoration(
+                  hintText: 'Password',
+                  ),
+                
                   obscureText: true,
                 ),
           
@@ -108,14 +112,14 @@ class LoginPage extends StatelessWidget {
                 const SizedBox(height: 25),
           
                 // sign in button
-                MyButton(
+                SignInButton(
                   onTap:() async {
                     if(formkey.currentState!.validate()){
                       formkey.currentState!.save();
                       try{
                         var userResult =
                          await firebaseAuth.createUserWithEmailAndPassword(
-                          email: email, password: password);
+                          email: email, password: password, name: 'name', surname: 'surname');
                           print(userResult.user!.uid);
                       }catch(e){
                         print(e.toString());
@@ -167,30 +171,39 @@ class LoginPage extends StatelessWidget {
                     SizedBox(width: 25),
           
                     // apple button
-                    SquareTile(imagePath: 'assets/images/saleicon.png')
+                    SquareTile(imagePath: 'assets/images/google.png')
                   ],
                 ),
           
                 const SizedBox(height: 50),
           
                 // not a member? register now
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Not a member?',
-                      style: TextStyle(color: Colors.grey[700]),
-                    ),
-                    const SizedBox(width: 4),
-                    const Text(
-                      'Register now',
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                )
+                InkWell(
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SignUpScreen()),
+    );
+  },
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Text(
+        'Not a member?',
+        style: TextStyle(color: Colors.grey[700]),
+      ),
+      const SizedBox(width: 4),
+      const Text(
+        'Register now',
+        style: TextStyle(
+          color: Colors.blue,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ],
+  ),
+)
+
               ],
             ),
           ),

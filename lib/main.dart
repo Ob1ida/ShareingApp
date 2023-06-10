@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:obida_app/Screens/login_page.dart';
 
+import 'Screens/sign_up.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
