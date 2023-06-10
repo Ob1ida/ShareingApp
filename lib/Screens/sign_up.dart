@@ -3,13 +3,16 @@ import 'package:flutter/material.dart';
 
 import '../components/my_button.dart';
 import '../components/square_tile.dart';
+import 'login_page.dart';
 
+// ignore: must_be_immutable
 class SignUpScreen extends StatelessWidget {
   SignUpScreen({Key? key}) : super(key: key);
 
   late String name, surname, email, password;
   final formKey = GlobalKey<FormState>();
   final firebaseAuth = FirebaseAuth.instance;
+  var SignedUp = false;
 
   // text editing controllers
   final nameController = TextEditingController();
@@ -23,8 +26,6 @@ class SignUpScreen extends StatelessWidget {
       formKey.currentState!.save();
       try {
         var userResult = await firebaseAuth.createUserWithEmailAndPassword(
-          name: name,
-          surname: surname,
           email: email,
           password: password,
         );
@@ -37,8 +38,9 @@ class SignUpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: const Color.fromARGB(255, 255, 254, 254),
       body: SafeArea(
         child: Center(
           child: Form(
@@ -58,40 +60,7 @@ class SignUpScreen extends StatelessWidget {
                 const SizedBox(height: 25),
 
                 // name textfield
-                TextFormField(
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your name';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    name = value!;
-                  },
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    hintText: 'Name',
-                  ),
-                  obscureText: false,
-                ),
-
-                // surname textfield
-                TextFormField(
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your surname';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    surname = value!;
-                  },
-                  controller: surnameController,
-                  decoration: const InputDecoration(
-                    hintText: 'Surname',
-                  ),
-                  obscureText: false,
-                ),
+                
 
                 const SizedBox(height: 10),
 
@@ -138,9 +107,41 @@ class SignUpScreen extends StatelessWidget {
             
 
                 // sign up button
-                SignInButton(
-                  onTap: signUpUser,
-                ),
+                Center(
+                  child: TextButton(
+onPressed: () async {
+  
+  
+  if(formKey.currentState!.validate()){
+                      formKey.currentState!.save();
+                      try{
+                        
+                        var userResult =
+                         await firebaseAuth.createUserWithEmailAndPassword(
+                          email: email, password: password);
+                          print(userResult.user!.uid);
+                          SignedUp = true;
+                      }catch(e){
+                        print(e.toString());
+                      }
+                      if(SignedUp){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+
+                        );
+                        
+
+                      }
+                    }
+                    }, child: const Text(
+                      "Create Account",
+                      selectionColor: Color.fromARGB(255, 105, 58, 247),
+                    ),
+                  ),
+                  
+                  
+                   ),
 
                 const SizedBox(height: 50),
 
@@ -175,7 +176,7 @@ class SignUpScreen extends StatelessWidget {
                 const SizedBox(height: 50),
 
                 // sale image buttons
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // google button
@@ -190,6 +191,32 @@ class SignUpScreen extends StatelessWidget {
 
                 const SizedBox(height: 50),
 
+                     InkWell(
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
+  },
+  child: Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Text(
+        'You Already Have An Account?',
+        style: TextStyle(color: Colors.grey[700]),
+      ),
+      const SizedBox(width: 4),
+      const Text(
+        'Sign in',
+        style: TextStyle(
+          color: Colors.blue,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ],
+  ),
+)
+
             
               ],
             ),
@@ -198,4 +225,6 @@ class SignUpScreen extends StatelessWidget {
       ),
     );
   }
+  
+  customText() {}
 }

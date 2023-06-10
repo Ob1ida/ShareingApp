@@ -10,6 +10,7 @@ class LoginPage extends StatelessWidget {
   late String email, password;
   final formkey = GlobalKey<FormState>();
   final firebaseAuth = FirebaseAuth.instance;
+  var SignedIn = false;
 
   // text editing controllers
   final usernameController = TextEditingController();
@@ -21,7 +22,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: const Color.fromARGB(255, 255, 254, 254),
       body: SafeArea(
         child: Center(
           child: Form(
@@ -32,7 +33,7 @@ class LoginPage extends StatelessWidget {
                 const SizedBox(height: 50),
           
                 // logo
-                ImageIcon(AssetImage('assets/images/saleicon.png'
+                const ImageIcon(AssetImage('assets/images/saleicon.png'
                 ),
                 size: 100,
                 ),
@@ -118,13 +119,17 @@ class LoginPage extends StatelessWidget {
                       formkey.currentState!.save();
                       try{
                         var userResult =
-                         await firebaseAuth.createUserWithEmailAndPassword(
-                          email: email, password: password, name: 'name', surname: 'surname');
+                         await firebaseAuth.signInWithEmailAndPassword(
+                          email: email, password: password);
                           print(userResult.user!.uid);
+                          SignedIn = true;
                       }catch(e){
                         print(e.toString());
                       }
                       
+                    }
+                    if(SignedIn){
+                      print('signed in ');
                     }
                   },
                 ),

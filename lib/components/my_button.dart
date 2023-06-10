@@ -34,7 +34,7 @@ class SignInButton extends StatelessWidget {
 class SignUpButton extends StatelessWidget {
   final Function()? onTap;
 
-  const SignUpButton({super.key, required this.onTap});
+  const SignUpButton(Null Function() param0, {super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
