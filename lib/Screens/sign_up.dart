@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 import '../components/my_button.dart';
@@ -19,6 +20,8 @@ class SignUpScreen extends StatelessWidget {
   final surnameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  
+  get dbRef => null;
 
   // sign user up method
   void signUpUser() async {
@@ -28,6 +31,8 @@ class SignUpScreen extends StatelessWidget {
         var userResult = await firebaseAuth.createUserWithEmailAndPassword(
           email: email,
           password: password,
+          name: name,
+          surname: surname,
         );
         print(userResult.user!.uid);
       } catch (e) {
@@ -38,7 +43,18 @@ class SignUpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
+    appBar:
+    AppBar(
+      leading: IconButton(
+        icon: Image.asset(
+            'assets/images/back_icon.png'), // back_icon.png'nin yolunu doğru şekilde ayarlayın
+        onPressed: () {
+          Navigator.of(context)
+              .pop(); // Önceki sayfaya geri dönmek için pop() kullanılır
+        },
+      ),
+    );
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 254, 254),
       body: SafeArea(
@@ -60,15 +76,48 @@ class SignUpScreen extends StatelessWidget {
                 const SizedBox(height: 25),
 
                 // name textfield
-                
-
-                const SizedBox(height: 10),
-
-                   // email textfield
                 TextFormField(
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Please enter your email';
+                      return 'Please Enter Your Name';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    name = value!;
+                  },
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    hintText: 'Name',
+                  ),
+                  obscureText: false,
+                ),
+                const SizedBox(height: 10),
+
+                // surname textfield
+                TextFormField(
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please Enter Your Surname';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    surname = value!;
+                  },
+                  controller: surnameController,
+                  decoration: const InputDecoration(
+                    hintText: 'Surname',
+                  ),
+                  obscureText: false,
+                ),
+                const SizedBox(height: 10),
+
+                // email textfield
+                TextFormField(
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please Enter Your Email';
                     }
                     return null;
                   },
@@ -81,14 +130,13 @@ class SignUpScreen extends StatelessWidget {
                   ),
                   obscureText: false,
                 ),
-                 const SizedBox(height: 10),
-
+                const SizedBox(height: 10),
 
                 // password textfield
                 TextFormField(
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Please enter your password';
+                      return 'Please Enter Your Password';
                     }
                     return null;
                   },
@@ -104,44 +152,47 @@ class SignUpScreen extends StatelessWidget {
 
                 const SizedBox(height: 10),
 
-            
-
                 // sign up button
-                Center(
-                  child: TextButton(
-onPressed: () async {
-  
-  
-  if(formKey.currentState!.validate()){
-                      formKey.currentState!.save();
-                      try{
-                        
-                        var userResult =
-                         await firebaseAuth.createUserWithEmailAndPassword(
-                          email: email, password: password);
-                          print(userResult.user!.uid);
-                          SignedUp = true;
-                      }catch(e){
-                        print(e.toString());
-                      }
-                      if(SignedUp){
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
+Center(
+  child: TextButton(
+    onPressed: () async {
+      if (formKey.currentState!.validate()) {
+        formKey.currentState!.save();
+        try {
+          var userResult = await firebaseAuth.createUserWithEmailAndPassword(
+            email: email,
+            password: password,
+            name: name,
+            surname: surname,
+          );
+          print(userResult.user!.uid);
+          SignedUp = true;
 
-                        );
-                        
-
-                      }
-                    }
-                    }, child: const Text(
-                      "Create Account",
-                      selectionColor: Color.fromARGB(255, 105, 58, 247),
-                    ),
-                  ),
-                  
-                  
-                   ),
+           if (SignedUp) {
+            DatabaseReference? dbRef = FirebaseService().dbRef;
+            await dbRef?.child('users').child(userResult.user!.uid).set({
+              'name': name,
+              'surname': surname,
+              'email': email,
+              'password': password,
+            });
+        } } catch (e) {
+          print(e.toString());
+        }
+         
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => LoginPage()),
+          );
+        }
+      },
+    
+    child: const Text(
+      "Create Account",
+      selectionColor: Color.fromARGB(255, 105, 58, 247),
+    ),
+  ),
+),
 
                 const SizedBox(height: 50),
 
@@ -172,7 +223,7 @@ onPressed: () async {
                     ],
                   ),
                 ),
-          
+
                 const SizedBox(height: 50),
 
                 // sale image buttons
@@ -191,33 +242,31 @@ onPressed: () async {
 
                 const SizedBox(height: 50),
 
-                     InkWell(
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => LoginPage()),
-    );
-  },
-  child: Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Text(
-        'You Already Have An Account?',
-        style: TextStyle(color: Colors.grey[700]),
-      ),
-      const SizedBox(width: 4),
-      const Text(
-        'Sign in',
-        style: TextStyle(
-          color: Colors.blue,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    ],
-  ),
-)
-
-            
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
+                  },
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'You Already Have An Account?',
+                        style: TextStyle(color: Colors.grey[700]),
+                      ),
+                      const SizedBox(width: 4),
+                      const Text(
+                        'Sign in',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
           ),
@@ -225,6 +274,12 @@ onPressed: () async {
       ),
     );
   }
-  
+
   customText() {}
+}
+
+class FirebaseService {
+   DatabaseReference get dbRef {
+    return FirebaseDatabase.instance.ref();
+  }
 }
