@@ -31,8 +31,7 @@ class SignUpScreen extends StatelessWidget {
         var userResult = await firebaseAuth.createUserWithEmailAndPassword(
           email: email,
           password: password,
-          name: name,
-          surname: surname,
+        
         );
         print(userResult.user!.uid);
       } catch (e) {
@@ -162,8 +161,7 @@ Center(
           var userResult = await firebaseAuth.createUserWithEmailAndPassword(
             email: email,
             password: password,
-            name: name,
-            surname: surname,
+           
           );
           print(userResult.user!.uid);
           SignedUp = true;
