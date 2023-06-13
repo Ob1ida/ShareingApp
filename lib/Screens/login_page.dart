@@ -6,6 +6,9 @@ import 'package:obida_app/components/my_button.dart';
 import 'package:obida_app/components/my_textfield.dart';
 import 'package:obida_app/components/square_tile.dart';
 
+import '../models/Users.dart';
+
+
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -16,10 +19,11 @@ class _LoginPageState extends State<LoginPage> {
   final formKey = GlobalKey<FormState>();
   final auth = FirebaseAuth.instance;
   // text editing controllers
-  final usernameController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
   var SignedIn = false;
-
+  var UserID;
+  
   late DatabaseReference dbRef;
 
   get firebaseAuth => null;
@@ -69,12 +73,13 @@ class _LoginPageState extends State<LoginPage> {
                   validator: (value) {
                     if (value!.isEmpty) {
                       return "please Enter your Email";
-                    } else {}
+                    } 
+                    return null;
                   },
                   onSaved: (value) {
                     email = value!;
                   },
-                  controller: usernameController,
+                  
                   decoration: const InputDecoration(
                     hintText: 'Email',
                   ),
@@ -88,12 +93,13 @@ class _LoginPageState extends State<LoginPage> {
                   validator: (value) {
                     if (value!.isEmpty) {
                       return "please Enter your Password";
-                    } else {}
+                    }
+                    return null;
                   },
                   onSaved: (value) {
                     password = value!;
                   },
-                  controller: passwordController,
+                  
                   decoration: const InputDecoration(
                     hintText: 'Password',
                   ),
@@ -125,9 +131,9 @@ class _LoginPageState extends State<LoginPage> {
                       formKey.currentState!.save();
                       try {
                         var userResult =
-                            await firebaseAuth.signInWithEmailAndPassword(
-                                email: email, password: password);
-                        print(userResult.user!.uid);
+                            await auth.signInWithEmailAndPassword(email: email, password: password);
+                                UserID = userResult.user!.uid;
+                        print(UserID);
                         SignedIn = true;
                       } catch (e) {
                         print(e.toString());
@@ -135,6 +141,11 @@ class _LoginPageState extends State<LoginPage> {
                     }
                     if (SignedIn) {
                       print('signed in ');
+                      // ignore: unused_local_variable
+                     Users user = Users();
+                     user.CreateUser(UserID);
+                      
+
                     }
                   },
                 ),
@@ -221,3 +232,5 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
+

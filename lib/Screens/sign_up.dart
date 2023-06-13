@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../components/my_button.dart';
 import '../components/square_tile.dart';
+import '../models/Users.dart';
 import 'login_page.dart';
 
 // ignore: must_be_immutable
@@ -14,7 +15,7 @@ class SignUpScreen extends StatelessWidget {
   final formKey = GlobalKey<FormState>();
   final firebaseAuth = FirebaseAuth.instance;
   var SignedUp = false;
-
+var UserID;
   // text editing controllers
   final nameController = TextEditingController();
   final surnameController = TextEditingController();
@@ -33,7 +34,7 @@ class SignUpScreen extends StatelessWidget {
           password: password,
         
         );
-        print(userResult.user!.uid);
+        UserID = userResult.user!.uid;
       } catch (e) {
         print(e.toString());
       }
@@ -162,8 +163,9 @@ Center(
             email: email,
             password: password,
            
+           
           );
-          print(userResult.user!.uid);
+          UserID = userResult.user!.uid;
           SignedUp = true;
 
            if (SignedUp) {
@@ -173,7 +175,10 @@ Center(
               'surname': surname,
               'email': email,
               'password': password,
+              
             });
+            Users user = Users();
+            user.CreateUser(UserID);
         } } catch (e) {
           print(e.toString());
         }
