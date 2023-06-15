@@ -7,6 +7,7 @@ import 'package:obida_app/components/my_textfield.dart';
 import 'package:obida_app/components/square_tile.dart';
 
 import '../models/Users.dart';
+import 'home_page.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -126,6 +127,7 @@ class _LoginPageState extends State<LoginPage> {
 
                 // sign in button
                 SignInButton(
+  
                   onTap: () async {
                     if (formKey.currentState!.validate()) {
                       formKey.currentState!.save();
@@ -144,7 +146,11 @@ class _LoginPageState extends State<LoginPage> {
                       // ignore: unused_local_variable
                      Users user = Users();
                      user.CreateUser(UserID);
-                      
+                     
+                       Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => HomePage()),
+      );
 
                     }
                   },

@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:obida_app/Screens/home_page.dart';
 import 'package:obida_app/Screens/login_page.dart';
 import 'firebase_options.dart';
 
@@ -19,7 +21,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'SharingApp',
-      home: LoginPage(),
+      home: FirebaseAuth.instance.currentUser == null? LoginPage() : HomePage(),
     );
   }
 }
