@@ -90,10 +90,12 @@ class _HomePageState extends State<HomePage> {
         await ImagePicker().pickImage(source: ImageSource.gallery);
     _cropImage(pickedFile!.path);
     Navigator.pop(context as BuildContext);
+      
+    
   }
 
   void _cropImage(filepath) async {
-    CroppedFile? croppedImage = await ImageCropper()
+    try{CroppedFile? croppedImage = await ImageCropper()
         .cropImage(sourcePath: filepath, maxHeight: 1080, maxWidth: 1080);
 
     if (croppedImage != null) {
@@ -101,6 +103,8 @@ class _HomePageState extends State<HomePage> {
         imageFile = File(croppedImage.path!);
       });
     }
+    }catch(e){print(e);}
+    
   }
 
   void _uploadImage() async {
