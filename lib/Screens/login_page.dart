@@ -167,7 +167,7 @@ class _LoginPageState extends State<LoginPage> {
                       // ignore: unused_local_variable
                       Users user = Users();
                       user.CreateUser(UserID);
-                      user.AddProduct();
+                     
 
                       Navigator.push(
                         context,

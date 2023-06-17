@@ -23,6 +23,11 @@ class _HomePageState extends State<HomePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   void _showImageDialog(BuildContext context) {
+    String productName = '';
+    String productDes = '';
+    DateTime productDate =  DateTime.now();
+    
+
     showDialog(
       context: context,
       builder: (context) {
@@ -71,8 +76,53 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
+              TextField(
+                onChanged: (value) {
+                  productName = value;
+                },
+                decoration: InputDecoration(
+                  labelText: "Photo Name",
+                ),
+              ),
+              TextField(
+                onChanged: (value) {
+                  productDes = value;
+                },
+                decoration: InputDecoration(
+                  labelText: "Description",
+                ),
+              ),
+            TextField(
+  onChanged: (value) {
+    setState(() {
+      productDate = DateTime.parse(value);
+    });
+  },
+  decoration: InputDecoration(
+    labelText: "Date",
+  ),
+),
+
+    
+
+
             ],
           ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                // Seçilen fotoğrafın bilgilerini kullanarak işlemler yapabilirsiniz.
+                // Örneğin: productName ve productDes değerlerini kullanarak fotoğrafı kaydedebilirsiniz.
+                // _savePhoto(productName, productDes);
+
+                Navigator.of(context).pop();
+              },
+              child: Text('Save'),
+                 style: ElevatedButton.styleFrom(
+                     backgroundColor: Colors.black
+              
+            ),)
+          ],
         );
       },
     );
@@ -90,21 +140,21 @@ class _HomePageState extends State<HomePage> {
         await ImagePicker().pickImage(source: ImageSource.gallery);
     _cropImage(pickedFile!.path);
     Navigator.pop(context as BuildContext);
-      
-    
   }
 
   void _cropImage(filepath) async {
-    try{CroppedFile? croppedImage = await ImageCropper()
-        .cropImage(sourcePath: filepath, maxHeight: 1080, maxWidth: 1080);
+    try {
+      CroppedFile? croppedImage = await ImageCropper()
+          .cropImage(sourcePath: filepath, maxHeight: 1080, maxWidth: 1080);
 
-    if (croppedImage != null) {
-      setState(() {
-        imageFile = File(croppedImage.path!);
-      });
+      if (croppedImage != null) {
+        setState(() {
+          imageFile = File(croppedImage.path!);
+        });
+      }
+    } catch (e) {
+      print(e);
     }
-    }catch(e){print(e);}
-    
   }
 
   void _uploadImage() async {
@@ -112,7 +162,7 @@ class _HomePageState extends State<HomePage> {
       Fluttertoast.showToast(msg: "Please Select an Image");
       return;
     }
-    
+
     // Perform the image upload here
   }
 
@@ -124,7 +174,6 @@ class _HomePageState extends State<HomePage> {
           colors: [
             Color.fromARGB(255, 255, 255, 255),
             Color.fromARGB(255, 255, 255, 255),
-            
           ],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,

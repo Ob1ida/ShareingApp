@@ -31,8 +31,9 @@ dependencies:
   fluttertoast: ^8.2.2
   image_cropper: ^5.0.0
   image_picker: ^0.8.8
-  intl: ^0.18.1
+  intl: ^0.18.0
   uuid: ^3.0.7
+ 
   
 
 
