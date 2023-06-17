@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,9 +11,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:obida_app/Screens/login_page.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+import '../models/Users.dart';
+
 class HomePage extends StatefulWidget {
+  final Users user;
+  const HomePage({required this.user});
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage> createState() => _HomePageState(user);
 }
 
 class _HomePageState extends State<HomePage> {
@@ -19,20 +25,30 @@ class _HomePageState extends State<HomePage> {
   String? imageUrl;
   String? myImage;
   String? myName;
-
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  void _showImageDialog(BuildContext context) {
+   String _imageString = "";
     String productName = '';
     String productDes = '';
+    bool _addPost = false;
     DateTime productDate =  DateTime.now();
-    
 
+  Users users;
+  
+
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  
+  _HomePageState(this.users);
+
+  
+
+  void _showImageDialog(BuildContext context) {
+    
+    
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Please Choose an Option"),
+          title: const Text("Share Your Product"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -110,7 +126,27 @@ class _HomePageState extends State<HomePage> {
           ),
           actions: [
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+
+                
+
+
+                if(_imageString !="" && productName != "" && productDes != "" && productDate.toString() != "")
+                {
+                  users.AddProduct(productName, productDes, productDate.toString(), _imageString);
+                  setState(() {
+                    _addPost = true;
+                  });
+                }
+                else{
+                  print('please fill the blank feild');
+                }
+
+                
+
+                
+
+  
                 // Seçilen fotoğrafın bilgilerini kullanarak işlemler yapabilirsiniz.
                 // Örneğin: productName ve productDes değerlerini kullanarak fotoğrafı kaydedebilirsiniz.
                 // _savePhoto(productName, productDes);
@@ -136,10 +172,27 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _getFromGallery() async {
-    XFile? pickedFile =
+    /*XFile? pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
     _cropImage(pickedFile!.path);
-    Navigator.pop(context as BuildContext);
+    Navigator.pop(context as BuildContext);*/
+
+    
+
+
+    final ImagePicker _imagePicker = ImagePicker();
+  PickedFile? _pickedImage;
+
+  final pickedImage = await _imagePicker.getImage(source: ImageSource.gallery);
+  if(pickedImage != null){
+    
+    final imageBytes = await pickedImage.readAsBytes();
+    final base64Image = base64Encode(imageBytes);
+
+    _pickedImage = pickedImage;
+     _imageString = base64Image;  
+      
+  }
   }
 
   void _cropImage(filepath) async {
@@ -166,6 +219,36 @@ class _HomePageState extends State<HomePage> {
     // Perform the image upload here
   }
 
+  Widget imageFromBase64String(String base64String) {
+  Uint8List bytes = base64Decode(base64String);
+  return Image.memory(bytes);
+}
+
+  Widget AddPost(BuildContext context){
+
+    return Container(
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            productName,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 19.0,
+            ),
+          ),
+          SizedBox(height: 8.0),
+          Text(productDes),
+          SizedBox(height: 8.0),
+          imageFromBase64String(_imageString),
+        ],
+
+      ),
+
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -181,6 +264,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       child: Scaffold(
+        body: _addPost ? AddPost(context) : const SizedBox(),
         floatingActionButton: Wrap(
           direction: Axis.horizontal,
           children: [

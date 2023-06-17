@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'SharingApp',
-      home: FirebaseAuth.instance.currentUser == null? LoginPage() : HomePage(),
+      home: FirebaseAuth.instance.currentUser == null? LoginPage() : LoginPage(),
     );
   }
 }

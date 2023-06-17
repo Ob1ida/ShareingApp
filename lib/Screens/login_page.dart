@@ -20,6 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   final passwordController = TextEditingController();
   var SignedIn = false;
   var UserID;
+  Users user = Users();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> resetPassword(String email) async {
@@ -165,13 +166,13 @@ class _LoginPageState extends State<LoginPage> {
                     if (SignedIn) {
                       print('signed in ');
                       // ignore: unused_local_variable
-                      Users user = Users();
+                      
                       user.CreateUser(UserID);
                      
 
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => HomePage()),
+                        MaterialPageRoute(builder: (context) => HomePage(user: user)),
                       );
                     }
                   },

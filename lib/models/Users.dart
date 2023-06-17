@@ -80,27 +80,7 @@ void createAdress(){
 
 }
 
-Future<void> AddProduct()  async {
-  late String _imageString;
-
-  final ImagePicker _imagePicker = ImagePicker();
-  PickedFile? _pickedImage;
-
-  final pickedImage = await _imagePicker.getImage(source: ImageSource.gallery);
-  if(pickedImage != null){
-    
-    final imageBytes = await pickedImage.readAsBytes();
-    final base64Image = base64Encode(imageBytes);
-
-    _pickedImage = pickedImage;
-     _imageString = base64Image;    
-  }
-
-  products pr = products();
-  pr.productName = "pC";
-  pr.productDes = "New Laptop Rtx 4090 64 gb ram";
-  pr.productDate = DateTime.now();
-
+Future<void> AddProduct(String productName,String productDes,String ProductDate,String Image)  async {
   DatabaseReference ref = FirebaseDatabase.instance.ref();
   final uuid = Uuid();
 
@@ -108,10 +88,13 @@ Future<void> AddProduct()  async {
   String? newItemKey = ref.child('Products').push().key;
 
   Map<String, dynamic> newProduct = {
-    'ProductName':pr.productName,
-    'productDes':pr.productDes,
-    'productDate':pr.productDate.toString(),
-    'image': _imageString,
+    'UserID': userID,
+    'ProductName':productName,
+    'productDes':productDes,
+    'productDate':ProductDate.toString(),
+    'imageUrl': Image,
+    'ProductID':uid,
+
   };
 
   ref.child('Products/$uid').set(newProduct).then((value) {
@@ -122,9 +105,45 @@ Future<void> AddProduct()  async {
 
   });
 
+  AddToMyProducts(uid, productName, productDes, ProductDate, Image);
+
+  myProducts.add(newProduct as products);
+  
+
+  
+
+ 
 
 
 
+
+
+
+
+
+}
+
+void AddToMyProducts(String uid,String productName,String productDes,String ProductDate,String Image){
+
+DatabaseReference ref = FirebaseDatabase.instance.ref();
+ String? newItemKey = ref.child('Products').push().key;
+
+  Map<String, dynamic> newProduct = {
+    'UserID': userID,
+    'UserName': name,
+    'ProductName':productName,
+    'productDes':productDes,
+    'productDate':ProductDate.toString(),
+    'image': Image,
+  };
+
+  ref.child('users/$userID/MyProducts/$uid').set(newProduct).then((value) {
+    print('Product added successfully to MyProducts .');
+
+  }).catchError((error){
+    print('Failed to add item:$error');
+
+  });
 
 
 }
