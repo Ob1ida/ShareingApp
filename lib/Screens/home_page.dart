@@ -10,6 +10,8 @@ import 'package:image_picker/image_picker.dart';
 
 import 'package:obida_app/Screens/login_page.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:obida_app/Screens/profile_screen.dart';
+import 'package:obida_app/Screens/search_post.dart';
 
 import '../models/Users.dart';
 
@@ -25,11 +27,11 @@ class _HomePageState extends State<HomePage> {
   String? imageUrl;
   String? myImage;
   String? myName;
-   String _imageString = "";
-    String productName = '';
-    String productDes = '';
-    bool _addPost = false;
-    DateTime productDate =  DateTime.now();
+  String _imageString = "";
+  String productName = '';
+  String productDes = '';
+  bool _addPost = false;
+  String productDate =  DateTime.now().toString();
 
   Users users;
   
@@ -42,7 +44,6 @@ class _HomePageState extends State<HomePage> {
   
 
   void _showImageDialog(BuildContext context) {
-    
     
     showDialog(
       context: context,
@@ -111,17 +112,13 @@ class _HomePageState extends State<HomePage> {
             TextField(
   onChanged: (value) {
     setState(() {
-      productDate = DateTime.parse(value);
+      productDate = DateTime.now().toString();
     });
   },
   decoration: InputDecoration(
     labelText: "Date",
   ),
 ),
-
-    
-
-
             ],
           ),
           actions: [
@@ -172,16 +169,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _getFromGallery() async {
-    /*XFile? pickedFile =
+    /* XFile? pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
     _cropImage(pickedFile!.path);
-    Navigator.pop(context as BuildContext);*/
+    Navigator.pop(context as BuildContext); */
 
     
 
 
     final ImagePicker _imagePicker = ImagePicker();
-  PickedFile? _pickedImage;
+    PickedFile? _pickedImage;
 
   final pickedImage = await _imagePicker.getImage(source: ImageSource.gallery);
   if(pickedImage != null){
@@ -252,7 +249,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [
             Color.fromARGB(255, 255, 255, 255),
@@ -260,7 +257,7 @@ class _HomePageState extends State<HomePage> {
           ],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-          stops: const [0.2, 0.9],
+          stops: [0.2, 0.9],
         ),
       ),
       child: Scaffold(
@@ -293,15 +290,15 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           flexibleSpace: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
                   Color.fromARGB(255, 0, 0, 0),
-                  const Color.fromARGB(255, 255, 255, 255),
+                  Color.fromARGB(255, 255, 255, 255),
                 ],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
-                stops: const [0.2, 0.9],
+                stops: [0.2, 0.9],
               ),
             ),
           ),
@@ -313,6 +310,22 @@ class _HomePageState extends State<HomePage> {
             },
             child: const Icon(Icons.login_outlined),
           ),
+          
+          actions: <Widget>[
+            IconButton(
+             onPressed:(){
+               Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => SearchPost()));
+             },
+             icon: const Icon(Icons.person_search),
+             color: Colors.black, iconSize: 30),
+
+             IconButton(
+             onPressed:(){
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ProfileScreen()));
+             },
+             icon: const Icon(Icons.person),
+             color: Colors.black, iconSize: 30)
+          ],
         ),
       ),
     );
