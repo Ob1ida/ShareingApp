@@ -148,7 +148,14 @@ DatabaseReference ref = FirebaseDatabase.instance.ref();
 
 }
 
-  
+void getAllProducts(){
+
+  print(adress.toString());
+
+
+
+
+}
 
   
   

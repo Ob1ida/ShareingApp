@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:obida_app/Screens/sign_up.dart';
 
@@ -20,12 +21,24 @@ class _LoginPageState extends State<LoginPage> {
   final passwordController = TextEditingController();
   var SignedIn = false;
   var UserID;
+  late List<String> collections;
   Users user = Users();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> resetPassword(String email) async {
     await _auth.sendPasswordResetEmail(email: email);
   }
+  void getCollections() {
+  DatabaseReference reference = FirebaseDatabase.instance.ref();
+  reference.child('Products').once().then((DatabaseEvent event) {
+    DataSnapshot snapshot = event.snapshot;
+    if (snapshot.value != null) {
+      Map<dynamic, dynamic> data = snapshot.value as Map;
+       collections = data.keys.cast<String>().toList();
+      print(collections); // List of collection names (child nodes) under 'Products'
+    }
+  });
+}
 
   @override
   Widget build(BuildContext context) {
@@ -151,6 +164,8 @@ class _LoginPageState extends State<LoginPage> {
                 //Sign In Button
                 SignInButton(
                   onTap: () async {
+                    getCollections();
+                    
                     if (formKey.currentState!.validate()) {
                       formKey.currentState!.save();
                       try {
@@ -168,11 +183,14 @@ class _LoginPageState extends State<LoginPage> {
                       // ignore: unused_local_variable
                       
                       user.CreateUser(UserID);
+                      user.createAdress();
+                      user.getAllProducts();
+                      print(collections);
                      
 
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => HomePage(user: user)),
+                        MaterialPageRoute(builder: (context) => HomePage(user: user, collections: collections,)),
                       );
                     }
                   },

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -5,6 +6,7 @@ import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -15,9 +17,10 @@ import '../models/Users.dart';
 
 class HomePage extends StatefulWidget {
   final Users user;
-  const HomePage({required this.user});
+  final List<String> collections;
+  const HomePage({required this.user, required this.collections});
   @override
-  State<HomePage> createState() => _HomePageState(user);
+  State<HomePage> createState() => _HomePageState(user,collections);
 }
 
 class _HomePageState extends State<HomePage> {
@@ -29,7 +32,11 @@ class _HomePageState extends State<HomePage> {
     String productName = '';
     String productDes = '';
     bool _addPost = false;
-    DateTime productDate =  DateTime.now();
+    String productDate =  DateTime.now().toString();
+     List<String> collections;
+
+    late String lat;
+    late String long;
 
   Users users;
   
@@ -37,7 +44,7 @@ class _HomePageState extends State<HomePage> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   
-  _HomePageState(this.users);
+  _HomePageState(this.users,this.collections);
 
   
 
@@ -111,7 +118,7 @@ class _HomePageState extends State<HomePage> {
             TextField(
   onChanged: (value) {
     setState(() {
-      productDate = DateTime.parse(value);
+      productDate = DateTime.now().toString();
     });
   },
   decoration: InputDecoration(
@@ -128,7 +135,14 @@ class _HomePageState extends State<HomePage> {
             ElevatedButton(
               onPressed: () async {
 
-                
+                _getCurrentLocation().then((value){
+                  lat = '${value.latitude}';
+                  long = '${value.longitude}';
+                  
+                    print('latitude : $lat , Longitude: $long');
+                  
+                });
+
 
 
                 if(_imageString !="" && productName != "" && productDes != "" && productDate.toString() != "")
@@ -211,10 +225,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _uploadImage() async {
-    if (imageFile == null) {
-      Fluttertoast.showToast(msg: "Please Select an Image");
-      return;
-    }
+    print(collections);
+    
 
     // Perform the image upload here
   }
@@ -224,7 +236,20 @@ class _HomePageState extends State<HomePage> {
   return Image.memory(bytes);
 }
 
-  Widget AddPost(BuildContext context){
+  Future<Widget> AddPost(BuildContext context,int index) async {
+
+    DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
+  
+  final snapshot = await databaseRef.child('Products/${collections[index]}').get();
+  
+  
+    Map<dynamic, dynamic>? data = snapshot.value as Map?;
+
+     productDes = data?['productDes'];
+    productName = data?['ProductName'];
+    _imageString = data?['imageUrl'];
+
+    print(_imageString);
 
     return Container(
       padding: EdgeInsets.all(16.0),
@@ -247,8 +272,42 @@ class _HomePageState extends State<HomePage> {
       ),
 
     );
+    
   }
 
+  Future<Position> _getCurrentLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if(!serviceEnabled)
+    {
+      return Future.error('Location services are disabled.');
+    }
+    LocationPermission permission = await Geolocator.checkPermission();
+    if(permission == LocationPermission.denied){
+      permission = await Geolocator.requestPermission();
+      if(permission == LocationPermission.denied){
+        return Future.error('Location Permission are denied');
+      }
+    }
+    if(permission == LocationPermission.deniedForever){
+      return Future.error(
+        'Location permission are permanetly denied , we cannot request'
+      );
+    }
+    return await Geolocator.getCurrentPosition();
+
+  }
+
+//void getCollections() {
+  //DatabaseReference reference = FirebaseDatabase.instance.ref();
+  //reference.child('Products').once().then((DatabaseEvent event) {
+    //DataSnapshot snapshot = event.snapshot;
+    //if (snapshot.value != null) {
+      //Map<dynamic, dynamic> data = snapshot.value as Map;
+       //collections = data.keys.cast<String>().toList();
+      //print(collections); // List of collection names (child nodes) under 'Products'
+    //}
+  //});
+//}
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -264,7 +323,26 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       child: Scaffold(
-        body: _addPost ? AddPost(context) : const SizedBox(),
+        body: 
+        ListView.builder(
+          itemCount: collections.length,
+          itemBuilder: (BuildContext context, int index) {
+            return FutureBuilder<Widget>(
+              future: AddPost(context, index),
+              builder: (context, snapshot){
+                if(snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                }else if(snapshot.hasError){
+                  return Text('Error: ${snapshot.error}');
+
+                }else{
+                  return snapshot.data ?? SizedBox();
+                }
+              },
+              );
+          },
+        ),
+        
         floatingActionButton: Wrap(
           direction: Axis.horizontal,
           children: [
