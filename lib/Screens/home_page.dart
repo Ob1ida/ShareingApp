@@ -35,6 +35,9 @@ class _HomePageState extends State<HomePage> {
     String productDes = '';
     bool _addPost = false;
     DateTime productDate =  DateTime.now();
+    List<String> collections;
+    late String lat;
+    late String long;
 
   Users users;
   
@@ -115,7 +118,7 @@ class _HomePageState extends State<HomePage> {
             TextField(
   onChanged: (value) {
     setState(() {
-      productDate = DateTime.now().toString();
+      productDate = DateTime.now().toString() as DateTime;
     });
   },
   decoration: InputDecoration(
