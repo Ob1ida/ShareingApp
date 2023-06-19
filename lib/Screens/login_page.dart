@@ -184,6 +184,7 @@ class _LoginPageState extends State<LoginPage> {
                       
                       user.CreateUser(UserID);
                       user.createAdress();
+                      
                       user.getAllProducts();
                       print(collections);
                      

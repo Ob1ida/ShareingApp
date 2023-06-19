@@ -6,13 +6,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:obida_app/Screens/home_page.dart';
 import 'package:obida_app/Screens/login_page.dart';
 import 'package:obida_app/models/Users.dart';
 
 class ProfileScreen extends StatefulWidget {
+  final Users user;
+  const ProfileScreen(this.user, {super.key});
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<ProfileScreen> createState() => _ProfileScreenState(user);
 }
 
 class Address {
@@ -26,6 +27,7 @@ class Address {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  Users users;
   String? name = '';
   String? email = '';
   String? image = '';
@@ -34,35 +36,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Address userAddress = Address();
   File? imageXFile;
 
+  _ProfileScreenState(this.users);
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   void _saveAddress() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       // Adres bilgilerini kaydetme işlemlerini yapabilirsiniz
-      print('Added Address: ${userAddress.street}, ${userAddress.city}, ${userAddress.state}, ${userAddress.postalCode}, ${userAddress.country}');
+      print(
+          'Added Address: ${userAddress.street}, ${userAddress.city}, ${userAddress.state}, ${userAddress.postalCode}, ${userAddress.country}');
     }
   }
 
   Future<void> _getDataFromDatabase() async {
-    final DatabaseReference ref = FirebaseDatabase.instance
-        .reference()
-        .child('users')
-        .child(FirebaseAuth.instance.currentUser!.uid);
 
-    /*  ref.onValue.listen((DataSnapshot event) {
-    final snapshot = event.snapshot;
-    if (snapshot.value != null) {
-      setState(() {
-        final data = snapshot.value;
-        final name = data["name"];
-        final email = data["email"];
-        final image = data["image"];
-        final phoneNo = data["phoneNo"];
+    
+  }
 
-      });
-    }
-    } as void Function(DatabaseEvent event)?,);  */
+  @override
+  void initState() {
+    super.initState();
+    _getDataFromDatabase();
   }
 
   @override
@@ -139,7 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Name: ' + name!,
+                  'Name: ${users.name}',
                   style: const TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,
@@ -158,7 +153,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 11.0,
             ),
             Text(
-              'Email: ' + email!,
+              'Email: ${users.userEmail}',
               style: const TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.bold,
@@ -169,7 +164,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 11.0,
             ),
             Text(
-              'Phone Number: ' + phoneNo!,
+              'Phone Number: $phoneNo',
               style: const TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.bold,
@@ -193,25 +188,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 children: [
                   TextFormField(
-                    decoration: InputDecoration(labelText: 'Street'),
-                    onSaved: (value) => userAddress.street = value,
+                    decoration: InputDecoration(labelText: users.adress.street),
+                    onSaved: (value) => users.adress.street = value!,
                   ),
                   TextFormField(
-                    decoration: InputDecoration(labelText: 'City'),
-                    onSaved: (value) => userAddress.city = value,
+                    decoration: InputDecoration(labelText: users.adress.city),
+                    onSaved: (value) => users.adress.city = value!,
                   ),
                   TextFormField(
-                    decoration: InputDecoration(labelText: 'State'),
-                    onSaved: (value) => userAddress.state = value,
+                    decoration: InputDecoration(labelText: users.adress.state),
+                    
+                    onSaved: (value) => users.adress.state = value!,
                   ),
                   TextFormField(
-                    decoration: InputDecoration(labelText: 'Postal Code'),
+                    decoration: InputDecoration(labelText: users.adress.postalCode.toString()),
                     onSaved: (value) =>
-                        userAddress.postalCode = int.tryParse(value ?? ''),
+                        users.adress.postalCode = int.tryParse(value ?? '')!,
                   ),
                   TextFormField(
-                    decoration: InputDecoration(labelText: 'Country'),
-                    onSaved: (value) => userAddress.country = value,
+                    decoration: InputDecoration(labelText: users.adress.country),
+                    onSaved: (value) => users.adress.country = value!,
                   ),
                 ],
               ),
@@ -220,12 +216,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ElevatedButton(
               onPressed: _saveAddress,
               child: Text('Save'),
-               style: ElevatedButton.styleFrom(
+              style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
               ),
-              
             ),
             const SizedBox(height: 15.0),
             ElevatedButton(

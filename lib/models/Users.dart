@@ -19,6 +19,8 @@ class Users {
   late String userID;
   late String password;
   late String userEmail;
+  late String userImage;
+  late String UserPhoneNo;
 
   late List<products> myProducts;
 
