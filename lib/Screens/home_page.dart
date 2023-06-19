@@ -22,35 +22,33 @@ class HomePage extends StatefulWidget {
   final List<String> collections;
   const HomePage({required this.user, required this.collections});
   @override
-  State<HomePage> createState() => _HomePageState(user,collections);
+  State<HomePage> createState() => _HomePageState(user, collections);
 }
 
 class _HomePageState extends State<HomePage> {
+  String changeTitle = "Grid View";
+  bool checkView = false;
+
   File? imageFile;
   String? imageUrl;
   String? myImage;
   String? myName;
-   String _imageString = "";
-    String productName = '';
-    String productDes = '';
-    bool _addPost = false;
-    DateTime productDate =  DateTime.now();
-    List<String> collections;
-    late String lat;
-    late String long;
+  late String _imageString = '';
+  String productName = '';
+  String productDes = '';
+  bool _addPost = false;
+  DateTime productDate = DateTime.now();
+  List<String> collections;
+  late String lat;
+  late String long;
 
   Users users;
-  
-
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  
-  _HomePageState(this.users,this.collections);
 
-  
+  _HomePageState(this.users, this.collections);
 
   void _showImageDialog(BuildContext context) {
-    
     showDialog(
       context: context,
       builder: (context) {
@@ -115,48 +113,41 @@ class _HomePageState extends State<HomePage> {
                   labelText: "Description",
                 ),
               ),
-            TextField(
-  onChanged: (value) {
-    setState(() {
-      productDate = DateTime.now().toString() as DateTime;
-    });
-  },
-  decoration: InputDecoration(
-    labelText: "Date",
-  ),
-),
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    productDate = DateTime.now().toString() as DateTime;
+                  });
+                },
+                decoration: const InputDecoration(
+                  labelText: "Date",
+                ),
+              ),
             ],
           ),
           actions: [
             ElevatedButton(
               onPressed: () async {
-
-                _getCurrentLocation().then((value){
+                _getCurrentLocation().then((value) {
                   lat = '${value.latitude}';
                   long = '${value.longitude}';
-                  
-                    print('latitude : $lat , Longitude: $long');
-                  
+
+                  print('latitude : $lat , Longitude: $long');
                 });
 
-
-
-                if(_imageString !="" && productName != "" && productDes != "" && productDate.toString() != "")
-                {
-                  users.AddProduct(productName, productDes, productDate.toString(), _imageString);
+                if (_imageString != "" &&
+                    productName != "" &&
+                    productDes != "" &&
+                    productDate.toString() != "") {
+                  users.AddProduct(productName, productDes,
+                      productDate.toString(), _imageString);
                   setState(() {
                     _addPost = true;
                   });
-                }
-                else{
+                } else {
                   print('please fill the blank feild');
                 }
 
-                
-
-                
-
-  
                 // Seçilen fotoğrafın bilgilerini kullanarak işlemler yapabilirsiniz.
                 // Örneğin: productName ve productDes değerlerini kullanarak fotoğrafı kaydedebilirsiniz.
                 // _savePhoto(productName, productDes);
@@ -164,10 +155,8 @@ class _HomePageState extends State<HomePage> {
                 Navigator.of(context).pop();
               },
               child: Text('Save'),
-                 style: ElevatedButton.styleFrom(
-                     backgroundColor: Colors.black
-              
-            ),)
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+            )
           ],
         );
       },
@@ -182,27 +171,20 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _getFromGallery() async {
-    /* XFile? pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    _cropImage(pickedFile!.path);
-    Navigator.pop(context as BuildContext); */
-
-    
-
-
     final ImagePicker _imagePicker = ImagePicker();
     PickedFile? _pickedImage;
 
-  final pickedImage = await _imagePicker.getImage(source: ImageSource.gallery);
-  if(pickedImage != null){
-    
-    final imageBytes = await pickedImage.readAsBytes();
-    final base64Image = base64Encode(imageBytes);
+    final pickedImage =
+        await _imagePicker.getImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      final imageBytes = await pickedImage.readAsBytes();
+      final base64Image = base64Encode(imageBytes);
 
-    _pickedImage = pickedImage;
-     _imageString = base64Image;  
-      
-  }
+      setState(() {
+        _pickedImage = pickedImage;
+        _imageString = base64Image;
+      });
+    }
   }
 
   void _cropImage(filepath) async {
@@ -222,28 +204,34 @@ class _HomePageState extends State<HomePage> {
 
   void _uploadImage() async {
     print(collections);
-    
 
-    // Perform the image upload here
+    if (imageFile == null) {
+      Fluttertoast.showToast(msg: "Please Select an Image");
+      return;
+    }
+    /* try{
+         buraya da database işlemleri gelecek
+    } catch(error){
+      Fluttertoast.showToast(msg: error.toString());
+    } */
   }
 
   Widget imageFromBase64String(String base64String) {
-  Uint8List bytes = base64Decode(base64String);
-  return Image.memory(bytes);
-}
+    Uint8List bytes = base64Decode(base64String);
+    return Image.memory(bytes);
+  }
 
-  Future<Widget> AddPost(BuildContext context,int index) async {
-
+  Future<Widget> AddPost(BuildContext context, int index) async {
     DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
-  
-  final snapshot = await databaseRef.child('Products/${collections[index]}').get();
-  
-  
+
+    final snapshot =
+        await databaseRef.child('Products/${collections[index]}').get();
+
     Map<dynamic, dynamic>? data = snapshot.value as Map?;
 
-     productDes = data?['productDes'];
+    productDes = data?['productDes'];
     productName = data?['ProductName'];
-    _imageString = data?['imageUrl'];
+    _imageString = data?['imageUrl'] ?? '';
 
     print(_imageString);
 
@@ -264,46 +252,29 @@ class _HomePageState extends State<HomePage> {
           SizedBox(height: 8.0),
           imageFromBase64String(_imageString),
         ],
-
       ),
-
     );
-    
   }
 
   Future<Position> _getCurrentLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if(!serviceEnabled)
-    {
+    if (!serviceEnabled) {
       return Future.error('Location services are disabled.');
     }
     LocationPermission permission = await Geolocator.checkPermission();
-    if(permission == LocationPermission.denied){
+    if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if(permission == LocationPermission.denied){
+      if (permission == LocationPermission.denied) {
         return Future.error('Location Permission are denied');
       }
     }
-    if(permission == LocationPermission.deniedForever){
+    if (permission == LocationPermission.deniedForever) {
       return Future.error(
-        'Location permission are permanetly denied , we cannot request'
-      );
+          'Location permission are permanetly denied , we cannot request');
     }
     return await Geolocator.getCurrentPosition();
-
   }
 
-//void getCollections() {
-  //DatabaseReference reference = FirebaseDatabase.instance.ref();
-  //reference.child('Products').once().then((DatabaseEvent event) {
-    //DataSnapshot snapshot = event.snapshot;
-    //if (snapshot.value != null) {
-      //Map<dynamic, dynamic> data = snapshot.value as Map;
-       //collections = data.keys.cast<String>().toList();
-      //print(collections); // List of collection names (child nodes) under 'Products'
-    //}
-  //});
-//}
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -319,26 +290,23 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       child: Scaffold(
-        body: 
-        ListView.builder(
+        body: ListView.builder(
           itemCount: collections.length,
           itemBuilder: (BuildContext context, int index) {
             return FutureBuilder<Widget>(
               future: AddPost(context, index),
-              builder: (context, snapshot){
-                if(snapshot.connectionState == ConnectionState.waiting) {
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return CircularProgressIndicator();
-                }else if(snapshot.hasError){
+                } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
-
-                }else{
+                } else {
                   return snapshot.data ?? SizedBox();
                 }
               },
-              );
+            );
           },
         ),
-        
         floatingActionButton: Wrap(
           direction: Axis.horizontal,
           children: [
@@ -358,7 +326,7 @@ class _HomePageState extends State<HomePage> {
               child: FloatingActionButton(
                 heroTag: "2",
                 backgroundColor: Color.fromARGB(255, 0, 0, 0),
-                onPressed: _uploadImage,
+                onPressed: _uploadImage, //fonksiyon olması lazım!!
                 child: const Icon(Icons.cloud_upload),
               ),
             ),
@@ -379,6 +347,22 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
+          title: GestureDetector(
+            onTap: () {
+              setState(() {
+                changeTitle = "List View";
+                checkView = true;
+              });
+            },
+            onDoubleTap: () {
+              setState(() {
+                changeTitle = "Grid View";
+                checkView = false;
+              });
+            },
+            child: Text(changeTitle),
+          ),
+          centerTitle: true,
           leading: GestureDetector(
             onTap: () {
               FirebaseAuth.instance.signOut();
@@ -387,21 +371,23 @@ class _HomePageState extends State<HomePage> {
             },
             child: const Icon(Icons.login_outlined),
           ),
-          
           actions: <Widget>[
             IconButton(
-             onPressed:(){
-               Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => SearchPost()));
-             },
-             icon: const Icon(Icons.person_search),
-             color: Colors.black, iconSize: 30),
-
-             IconButton(
-             onPressed:(){
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ProfileScreen()));
-             },
-             icon: const Icon(Icons.person),
-             color: Colors.black, iconSize: 30)
+                onPressed: () {
+                  Navigator.pushReplacement(
+                      context, MaterialPageRoute(builder: (_) => SearchPost()));
+                },
+                icon: const Icon(Icons.person_search),
+                color: Colors.black,
+                iconSize: 30),
+            IconButton(
+                onPressed: () {
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (_) => ProfileScreen()));
+                },
+                icon: const Icon(Icons.person),
+                color: Colors.black,
+                iconSize: 30)
           ],
         ),
       ),

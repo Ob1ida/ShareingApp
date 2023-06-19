@@ -34,35 +34,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Address userAddress = Address();
   File? imageXFile;
 
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  void _saveAddress() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      // Adres bilgilerini kaydetme işlemlerini yapabilirsiniz
-      print('Added Address: ${userAddress.street}, ${userAddress.city}, ${userAddress.state}, ${userAddress.postalCode}, ${userAddress.country}');
-    }
-  }
-
   Future<void> _getDataFromDatabase() async {
     final DatabaseReference ref = FirebaseDatabase.instance
         .reference()
         .child('users')
         .child(FirebaseAuth.instance.currentUser!.uid);
 
-    /*  ref.onValue.listen((DataSnapshot event) {
-    final snapshot = event.snapshot;
-    if (snapshot.value != null) {
-      setState(() {
-        final data = snapshot.value;
-        final name = data["name"];
-        final email = data["email"];
-        final image = data["image"];
-        final phoneNo = data["phoneNo"];
+    ref.onValue.listen(
+      (event) {
+        final snapshot = event.snapshot;
+        if (snapshot.value != null) {
+          setState(() {
+            final data = snapshot.value as Map<dynamic, dynamic>;
+            name = data["name"] as String?;
+            email = data["email"] as String?;
+            image = data["image"] as String?;
+            phoneNo = data["phoneNo"] as String?;
+          });
+        }
+      },
+    );
+    onError:
+    (error) {
+      // Hata durumunda yapılacak işlemler
+      print('Hata: $error');
+    };
+  }
 
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  void _saveAddress() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      DatabaseReference addressRef =
+      FirebaseDatabase.instance.reference().child('addresses');
+      DatabaseReference newAddressRef = addressRef.push();
+      newAddressRef.set({
+        'street': userAddress.street,
+        'city': userAddress.city,
+        'state': userAddress.state,
+        'postalCode': userAddress.postalCode,
+        'country': userAddress.country,
+      }).then((_) {
+        print('Address saved successfully!');
+      }).catchError((error) {
+        print('Failed to save address: $error');
       });
     }
-    } as void Function(DatabaseEvent event)?,);  */
   }
 
   @override
@@ -124,10 +142,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 backgroundColor: Color.fromARGB(255, 0, 0, 0),
                 minRadius: 60.0,
                 child: CircleAvatar(
-                  radius: 50.0,
+                  radius: 55.0,
                   backgroundImage: imageXFile == null
-                      ? NetworkImage(image!)
-                      : Image.file(imageXFile!).image,
+                      ? 
+                      NetworkImage(
+                        image!
+                        )
+                      : 
+                      Image.file
+                      (imageXFile!).image,
                 ),
               ),
             ),
@@ -220,12 +243,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ElevatedButton(
               onPressed: _saveAddress,
               child: Text('Save'),
-               style: ElevatedButton.styleFrom(
+              style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
               ),
-              
             ),
             const SizedBox(height: 15.0),
             ElevatedButton(
