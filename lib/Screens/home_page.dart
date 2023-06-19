@@ -230,8 +230,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  
   Future<Widget> AddPost(BuildContext context,int index) async {
-  Future<Widget> AddPost(BuildContext context,int index) async {
+    DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
 
 
     final snapshot = await databaseRef.child('Products/${collections[index]}').get();
@@ -272,16 +273,16 @@ class _HomePageState extends State<HomePage> {
 
   Future<Position> _getCurrentLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if(!serviceEnabled)
+    
     if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
     }
     LocationPermission permission = await Geolocator.checkPermission();
-    if(permission == LocationPermission.denied){
-    if (permission == LocationPermission.denied) {
-      if(permission == LocationPermission.denied){
+    
       if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
       }
-    }
+    
     if (permission == LocationPermission.deniedForever) {
       return Future.error('Location permission are permanently denied, we cannot request');
     }
@@ -303,7 +304,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       child: Scaffold(
-        body: 
+         
         body: ListView.builder(
           itemBuilder: (BuildContext context, int index) {
             return Padding(
@@ -424,3 +425,5 @@ class _HomePageState extends State<HomePage> {
   }
 }
   
+  
+

@@ -37,6 +37,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   File? imageXFile;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  
+  _ProfileScreenState(this.users);
 
   void _saveAddress() {
     if (_formKey.currentState!.validate()) {
