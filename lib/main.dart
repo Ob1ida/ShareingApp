@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:obida_app/Screens/home_page.dart';
 import 'package:obida_app/Screens/login_page.dart';
 import 'package:obida_app/Screens/profile_screen.dart';
+import 'package:obida_app/Screens/search_post.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {

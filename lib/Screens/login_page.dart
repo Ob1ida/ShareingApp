@@ -24,6 +24,11 @@ class _LoginPageState extends State<LoginPage> {
   late List<String> collections;
   Users user = Users();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  @override
+void initState() {
+  super.initState();
+  getCollections();
+}
 
   Future<void> resetPassword(String email) async {
     await _auth.sendPasswordResetEmail(email: email);

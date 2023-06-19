@@ -36,28 +36,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Address userAddress = Address();
   File? imageXFile;
 
-  _ProfileScreenState(this.users);
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   void _saveAddress() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       // Adres bilgilerini kaydetme işlemlerini yapabilirsiniz
-      print(
-          'Added Address: ${userAddress.street}, ${userAddress.city}, ${userAddress.state}, ${userAddress.postalCode}, ${userAddress.country}');
+      print('Added Address: ${userAddress.street}, ${userAddress.city}, ${userAddress.state}, ${userAddress.postalCode}, ${userAddress.country}');
     }
   }
 
   Future<void> _getDataFromDatabase() async {
 
-    
-  }
+    /*  ref.onValue.listen((DataSnapshot event) {
+    final snapshot = event.snapshot;
+    if (snapshot.value != null) {
+      setState(() {
+        final data = snapshot.value;
+        final name = data["name"];
+        final email = data["email"];
+        final image = data["image"];
+        final phoneNo = data["phoneNo"];
 
-  @override
-  void initState() {
-    super.initState();
-    _getDataFromDatabase();
+      });
+    }
+    } as void Function(DatabaseEvent event)?,);  */
   }
 
   @override
@@ -119,10 +122,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 backgroundColor: Color.fromARGB(255, 0, 0, 0),
                 minRadius: 60.0,
                 child: CircleAvatar(
-                  radius: 50.0,
+                  radius: 55.0,
                   backgroundImage: imageXFile == null
-                      ? NetworkImage(image!)
-                      : Image.file(imageXFile!).image,
+                      ? 
+                      NetworkImage(
+                        image!
+                        )
+                      : 
+                      Image.file
+                      (imageXFile!).image,
                 ),
               ),
             ),

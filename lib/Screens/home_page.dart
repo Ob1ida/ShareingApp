@@ -28,6 +28,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String changeTitle = "Grid View";
+  bool checkView = false;
+
   File? imageFile;
   String? imageUrl;
   String? myImage;
@@ -46,6 +49,8 @@ class _HomePageState extends State<HomePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   _HomePageState(this.users, this.collections);
+
+  
 
   void _showImageDialog(BuildContext context) {
     showDialog(
@@ -130,6 +135,7 @@ class _HomePageState extends State<HomePage> {
           actions: [
             ElevatedButton(
               onPressed: () async {
+                
                 _getCurrentLocation().then((value) {
                   lat = '${value.latitude}';
                   long = '${value.longitude}';
@@ -150,7 +156,7 @@ class _HomePageState extends State<HomePage> {
                   print('please fill the blank field');
                 }
 
-                // Seçilen fotoğrafın bilgilerini kullanarak işlemler yapabilirsiniz.
+
                 // Örneğin: productName ve productDes değerlerini kullanarak fotoğrafı kaydedebilirsiniz.
                 // _savePhoto(productName, productDes);
 
@@ -224,16 +230,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<Widget> AddPost(BuildContext context, int index) async {
-    DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
+  Future<Widget> AddPost(BuildContext context,int index) async {
+  Future<Widget> AddPost(BuildContext context,int index) async {
+
 
     final snapshot = await databaseRef.child('Products/${collections[index]}').get();
 
     Map<dynamic, dynamic>? data = snapshot.value as Map?;
 
+     productDes = data?['productDes'];
     productDes = data?['productDes'];
-    productName = data?['ProductName'];
-    _imageString = data?['imageUrl'];
+    _imageString = data?['imageUrl'] ?? '';
 
     print(_imageString);
 
@@ -265,14 +272,14 @@ class _HomePageState extends State<HomePage> {
 
   Future<Position> _getCurrentLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if(!serviceEnabled)
     if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
     }
     LocationPermission permission = await Geolocator.checkPermission();
+    if(permission == LocationPermission.denied){
     if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+      if(permission == LocationPermission.denied){
       if (permission == LocationPermission.denied) {
-        return Future.error('Location Permission are denied');
       }
     }
     if (permission == LocationPermission.deniedForever) {
@@ -296,8 +303,8 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       child: Scaffold(
+        body: 
         body: ListView.builder(
-          itemCount: collections.length,
           itemBuilder: (BuildContext context, int index) {
             return Padding(
               padding: EdgeInsets.all(8.0),
@@ -370,6 +377,22 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
+          title: GestureDetector(
+            onTap: () {
+              setState(() {
+                changeTitle = "List View";
+                checkView = true;
+              });
+            },
+            onDoubleTap: () {
+              setState(() {
+                changeTitle = "Grid View";
+                checkView = false;
+              });
+            },
+            child: Text(changeTitle),
+          ),
+          centerTitle: true,
           leading: GestureDetector(
             onTap: () {
               FirebaseAuth.instance.signOut();
@@ -400,3 +423,4 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+  
